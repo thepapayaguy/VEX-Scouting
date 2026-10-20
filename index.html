@@ -1,0 +1,442 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1b1f24"><meta name="apple-mobile-web-app-capable" content="yes"><title>69153C Scouting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+body{margin:0}
+/* Layout: phone-first single column; tab bar on top; form in short field-tile cards, team board as a ranked table */
+:root{
+  --bg:#eef0f2; --surface:#ffffff; --sunk:#e3e6ea; --line:#c9ced5; --fg:#1b1f24; --muted:#5b636e;
+  --accent:#b88700; --accent-ink:#1b1f24; --accent-soft:#fff3cc;
+  --red:#c8323c; --red-soft:#fbe4e5; --blue:#2a5bd7; --blue-soft:#e3ebfd;
+  --good:#1f8a4c; --warn:#b86e00; --bad:#c8323c;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15181c; --surface:#1e2228; --sunk:#262b32; --line:#39404a; --fg:#e8eaed; --muted:#9aa3ae;
+  --accent:#f2c230; --accent-ink:#15181c; --accent-soft:#3a3218;
+  --red:#ef6b72; --red-soft:#3a2224; --blue:#7ea2ff; --blue-soft:#1f2a44;
+  --good:#4fc17f; --warn:#f0a43a; --bad:#ef6b72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15181c; --surface:#1e2228; --sunk:#262b32; --line:#39404a; --fg:#e8eaed; --muted:#9aa3ae;
+  --accent:#f2c230; --accent-ink:#15181c; --accent-soft:#3a3218;
+  --red:#ef6b72; --red-soft:#3a2224; --blue:#7ea2ff; --blue-soft:#1f2a44;
+  --good:#4fc17f; --warn:#f0a43a; --bad:#ef6b72; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:12px 64px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.02em;margin:0;text-transform:uppercase}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:13px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;padding-block:8px;border-bottom:1px solid var(--line);margin-bottom:14px}
+nav button{flex:1;font:600 14px var(--body);padding:10px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:12px;margin-bottom:12px}
+.card h2{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 small{font:500 12px var(--mono);color:var(--muted);letter-spacing:0;text-transform:none}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label.f{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+input[type=text],input[type=number],select,textarea{font:500 15px var(--body);color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
+textarea{min-height:70px;resize:vertical}
+.q{display:grid;gap:6px}
+.q .lab{font-size:14px;font-weight:600}
+.q .hint{font-size:12px;color:var(--muted);font-weight:400}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:500 14px var(--body);padding:9px 12px;min-height:40px;border-radius:8px;border:1px solid var(--line);background:var(--sunk);color:var(--fg);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.seg.alliance button[data-v="red"][aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
+.seg.alliance button[data-v="blue"][aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--sunk);color:var(--fg);font:600 22px var(--body);cursor:pointer}
+.step output{font:500 22px var(--mono);min-width:3ch;text-align:center;font-variant-numeric:tabular-nums}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:flex;align-items:center;gap:6px;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);cursor:pointer}
+.scorebar{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+.big{font:500 30px var(--mono);font-variant-numeric:tabular-nums}
+.big small{font-size:14px;color:var(--muted)}
+.parts{font:500 12px var(--mono);color:var(--muted)}
+.primary{font:600 15px var(--body);padding:12px 18px;border-radius:8px;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.ghost{font:500 13px var(--body);padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.danger{color:var(--bad);border-color:var(--bad)}
+.msg{font-size:13px;color:var(--muted)}
+.msg.err{color:var(--bad)} .msg.ok{color:var(--good)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:600 12px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:var(--sunk)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+tr.team{cursor:pointer} tr.team:hover td{background:var(--sunk)}
+.pill{display:inline-block;font:600 12px var(--body);padding:2px 8px;border-radius:99px}
+.p1{background:var(--accent-soft);color:var(--fg)} .p2{background:var(--blue-soft);color:var(--fg)} .pa{background:var(--red-soft);color:var(--fg)}
+.tier{font:700 13px var(--display);letter-spacing:.06em;text-transform:uppercase}
+.empty{text-align:center;padding:28px 16px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r)}
+.entry{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:4px;font-size:14px}
+.entry .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filters select,.filters input{width:auto;min-width:160px;flex:1}
+.guide dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0}
+.guide dt{font:500 14px var(--mono)}
+.guide dd{margin:0;font-size:14px}
+.guide p{margin:0;font-size:14px;max-width:65ch}
+.ro{background:var(--accent-soft);border-radius:8px;padding:10px;font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+  <header>
+    <h1>69153C <span>Scouting</span></h1>
+    <div class="sub">VEX V5 Override · one sheet per team per match</div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" id="tab-scout" aria-selected="true" data-tab="scout">Scout a match</button>
+    <button role="tab" id="tab-teams" aria-selected="false" data-tab="teams">Team board</button>
+    <button role="tab" id="tab-guide" aria-selected="false" data-tab="guide">Rubric guide</button>
+  </nav>
+
+  <!-- ============ SCOUT ============ -->
+  <section id="view-scout">
+
+    <div class="card">
+      <h2>Match</h2>
+      <div class="row">
+        <label class="f">Event<input type="text" id="event" list="eventList" value="St John's 21 Oct"></label>
+        <label class="f">Match<input type="text" id="match" placeholder="Q4, SF1, Pit"></label>
+      </div>
+      <div class="row">
+        <label class="f">Team number<input type="text" id="team" list="teamList" placeholder="e.g. 75477C" autocapitalize="characters"></label>
+        <label class="f">Scout<input type="text" id="scout" placeholder="Your name"></label>
+      </div>
+      <div class="q"><div class="lab">Alliance</div>
+        <div class="seg alliance" data-key="alliance"><button type="button" data-v="red">Red</button><button type="button" data-v="blue">Blue</button></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Autonomous <small>max 20</small></h2>
+      <div class="q"><div class="lab">Pins this team scored in auton <span class="hint">count their pins, not their partner's</span></div>
+        <div class="step" data-key="autoPins"><button type="button" data-d="-1" aria-label="fewer">−</button><output>0</output><button type="button" data-d="1" aria-label="more">+</button></div></div>
+      <div class="q"><div class="lab">How did the routine go?</div>
+        <div class="seg" data-key="autoResult"><button type="button" data-v="none">No auton</button><button type="button" data-v="failed">Failed</button><button type="button" data-v="partial">Partly worked</button><button type="button" data-v="clean">Clean</button></div></div>
+      <div class="checks">
+        <label><input type="checkbox" id="autoTwoGoals"> Used 2+ goals</label>
+        <label><input type="checkbox" id="autoToggle"> Flipped a toggle</label>
+        <label><input type="checkbox" id="autoWall"> Touched the perimeter at the end</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Driver scoring <small>max 40</small></h2>
+      <div class="q"><div class="lab">Pins scored in driver control <span class="hint">best estimate</span></div>
+        <div class="step" data-key="drivePins"><button type="button" data-d="-1" aria-label="fewer">−</button><output>0</output><button type="button" data-d="1" aria-label="more">+</button></div></div>
+      <div class="q"><div class="lab">Cycle speed <span class="hint">see Rubric guide</span></div>
+        <div class="seg" data-key="speed"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button></div></div>
+      <div class="q"><div class="lab">Highest place they can score</div>
+        <div class="seg" data-key="reach"><button type="button" data-v="alliance">Alliance goal</button><button type="button" data-v="short">Short goal</button><button type="button" data-v="tall">Tall goal</button><button type="button" data-v="top">Top of a tall stack</button></div></div>
+      <div class="q"><div class="lab">Intake type</div>
+        <div class="seg" data-key="intake"><button type="button" data-v="claw">Claw</button><button type="button" data-v="roller">Roller intake</button><button type="button" data-v="other">Other</button></div></div>
+      <div class="checks">
+        <label><input type="checkbox" id="yellows"> Scored yellows with toggle control</label>
+        <label><input type="checkbox" id="capping"> Capped stacks with opaque cups</label>
+        <label><input type="checkbox" id="loaders"> Used match loads well</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Toggles &amp; defence <small>max 15</small></h2>
+      <div class="q"><div class="lab">Toggle play</div>
+        <div class="seg" data-key="toggle"><button type="button" data-v="0">Ignores toggles</button><button type="button" data-v="1">Flips sometimes</button><button type="button" data-v="2">Holds a toggle</button><button type="button" data-v="3">Takes side toggles</button></div></div>
+      <div class="q"><div class="lab">Defence</div>
+        <div class="seg" data-key="defence"><button type="button" data-v="0">None</button><button type="button" data-v="1">Some</button><button type="button" data-v="2">Effective</button></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Endgame &amp; driving <small>max 15</small></h2>
+      <div class="q"><div class="lab">Midfield at the end</div>
+        <div class="seg" data-key="park"><button type="button" data-v="no">Not in</button><button type="button" data-v="pushed">Got pushed out</button><button type="button" data-v="yes">In the Midfield</button></div></div>
+      <div class="q"><div class="lab">Pushing strength</div>
+        <div class="seg" data-key="push"><button type="button" data-v="1">Weak</button><button type="button" data-v="2">Even</button><button type="button" data-v="3">Strong</button></div></div>
+      <div class="q"><div class="lab">Driver skill</div>
+        <div class="seg" data-key="driver"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Reliability <small>penalties</small></h2>
+      <div class="checks">
+        <label><input type="checkbox" id="died"> Died / disconnected</label>
+        <label><input type="checkbox" id="tipped"> Tipped over</label>
+        <label><input type="checkbox" id="broke"> Mechanism broke</label>
+        <label><input type="checkbox" id="fouls"> Fouls / DQ risk</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Verdict</h2>
+      <div class="q"><div class="lab">Would we pick them?</div>
+        <div class="seg" data-key="pick"><button type="button" data-v="first">First pick</button><button type="button" data-v="maybe">Maybe</button><button type="button" data-v="avoid">Avoid</button></div></div>
+      <label class="f">Notes<textarea id="notes" placeholder="Robot design, auton route, weaknesses, who drives…"></textarea></label>
+    </div>
+
+    <div class="scorebar">
+      <div><div class="big"><span id="total">0</span> <small>/ 100</small></div><div class="parts" id="parts">Auto 0 · Score 0 · Toggle 0 · End 0 · Penalty 0</div></div>
+      <div style="display:grid;gap:6px;justify-items:end">
+        <button class="primary" id="save" type="button">Save sheet</button>
+        <div class="msg" id="saveMsg" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TEAMS ============ -->
+  <section id="view-teams" hidden>
+    <div class="card">
+      <h2>Share sheets <small id="countNote"></small></h2>
+      <p class="msg" style="margin:0">Sheets save on this phone only. To combine everyone's scouting, each scout taps <b>Copy my sheets</b> and pastes the code into the team chat. Paste a teammate's code below and tap <b>Add to board</b>. Adding the same code twice is fine; duplicates are skipped.</p>
+      <div class="filters" style="margin:0">
+        <button class="primary" id="copyMine" type="button">Copy my sheets</button>
+        <button class="ghost" id="csv" type="button">Download spreadsheet (CSV)</button>
+      </div>
+      <textarea id="myCode" readonly hidden aria-label="Your sheets code"></textarea>
+      <textarea id="code" placeholder="Paste a teammate's code here" aria-label="Paste a teammate's code"></textarea>
+      <div class="filters" style="margin:0;align-items:center">
+        <button class="ghost" id="importBtn" type="button">Add to board</button>
+        <span class="msg" id="shareMsg" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="filters">
+      <select id="fEvent" aria-label="Filter by event"><option value="">All events</option></select>
+      <input type="text" id="fTeam" placeholder="Find a team" aria-label="Find a team">
+    </div>
+    <div id="board"></div>
+    <div id="detail"></div>
+  </section>
+
+  <!-- ============ GUIDE ============ -->
+  <section id="view-guide" hidden class="guide">
+    <div class="card">
+      <h2>How the score works</h2>
+      <p>Each sheet scores one team in one match out of 100. The team board averages every sheet for that team, so scout as many of their matches as you can and do not round up.</p>
+      <dl>
+        <dt>Auto 20</dt><dd>3 points per auton pin (max 15), +3 clean run or +1 partly worked, +2 if they used 2+ goals without touching the perimeter (an AWP-ready routine).</dd>
+        <dt>Score 40</dt><dd>2 points per driver pin (max 24), +2 per cycle-speed level above 1 (max 8), +2 tall goal / +4 top of a tall stack, +2 yellows with toggle control, +1 capping, +1 match loads.</dd>
+        <dt>Toggle 15</dt><dd>Toggle play 0 / 3 / 7 / 10, defence 0 / 2 / 5.</dd>
+        <dt>End 15</dt><dd>Midfield 8 (pushed out 3), pushing 0 / 2 / 4, driver skill adds 0–3.</dd>
+        <dt>Penalty</dt><dd>−8 died, −5 tipped, −4 mechanism broke, −4 fouls. Minimum total is 0.</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2>Cycle speed</h2>
+      <dl>
+        <dt>1</dt><dd>Under one pin per 20 s, or gets stuck often.</dd>
+        <dt>2</dt><dd>About one pin per 15–20 s.</dd>
+        <dt>3</dt><dd>About one pin per 10–15 s; steady SA middle school level.</dd>
+        <dt>4</dt><dd>About one pin per 7–10 s, rarely drops pieces.</dd>
+        <dt>5</dt><dd>Under 7 s per pin, picks stacks off the ground; NSW top-team level.</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2>Driver skill</h2>
+      <dl>
+        <dt>1</dt><dd>Struggles to line up on goals, drives into other robots.</dd>
+        <dt>3</dt><dd>Lines up reliably, some wasted movement.</dd>
+        <dt>5</dt><dd>Smooth, fast lines, reads the field and avoids defence.</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2>Score tiers on the board</h2>
+      <dl>
+        <dt>70+</dt><dd>Competitor. A first pick at any SA event.</dd>
+        <dt>50–69</dt><dd>Good. Strong partner.</dd>
+        <dt>30–49</dt><dd>Mid. Useful second pick if reliable.</dd>
+        <dt>15–29</dt><dd>Bad.</dd>
+        <dt>0–14</dt><dd>Poop.</dd>
+      </dl>
+      <p>Before alliance selection, sort by score, then check reliability penalties and the notes. A 55 that never breaks beats a 65 that died twice.</p>
+    </div>
+  </section>
+</div>
+
+<datalist id="teamList">
+  <option value="41103Z"><option value="12906D"><option value="12819C"><option value="12819T"><option value="12819D"><option value="12410W">
+  <option value="14671B"><option value="14671C"><option value="14671D"><option value="26425B"><option value="26425C"><option value="75477C">
+</datalist>
+<datalist id="eventList"><option value="St John's 21 Oct"><option value="SA States MS 16 Nov"></datalist>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const state = {alliance:null, autoPins:0, autoResult:null, drivePins:0, speed:null, reach:null, intake:null, toggle:null, defence:null, park:null, push:null, driver:null, pick:null};
+  const CHECKS = ['autoTwoGoals','autoToggle','autoWall','yellows','capping','loaders','died','tipped','broke','fouls'];
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected', x===b));
+    ['scout','teams','guide'].forEach(t=>$('#view-'+t).hidden = t!==b.dataset.tab);
+    try{localStorage.setItem('scoutTab', b.dataset.tab)}catch(e){}
+  }));
+  try{const t=localStorage.getItem('scoutTab'); if(t) document.querySelector(`nav button[data-tab="${t}"]`)?.click();}catch(e){}
+  try{const s=localStorage.getItem('scoutName'); if(s) $('#scout').value=s;}catch(e){}
+
+  /* ---------- controls ---------- */
+  document.querySelectorAll('.seg').forEach(seg=>{
+    seg.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+      const k=seg.dataset.key; state[k] = state[k]===btn.dataset.v ? null : btn.dataset.v; paint(); score();
+    }));
+  });
+  document.querySelectorAll('.step').forEach(st=>{
+    st.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+      const k=st.dataset.key; state[k]=Math.max(0,Math.min(30,state[k]+Number(btn.dataset.d))); paint(); score();
+    }));
+  });
+  CHECKS.forEach(id=>$('#'+id).addEventListener('change',score));
+
+  function paint(){
+    document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', state[seg.dataset.key]===b.dataset.v)));
+    document.querySelectorAll('.step').forEach(st=>st.querySelector('output').textContent=state[st.dataset.key]);
+  }
+
+  /* ---------- rubric ---------- */
+  function compute(s, c){
+    let auto = Math.min(15, s.autoPins*3) + (s.autoResult==='clean'?3 : s.autoResult==='partial'?1:0) + (c.autoTwoGoals && !c.autoWall ? 2:0);
+    auto = Math.min(20, auto);
+    let sc = Math.min(24, s.drivePins*2) + (s.speed? (Number(s.speed)-1)*2 :0) + ({tall:2, top:4}[s.reach]||0) + (c.yellows?2:0) + (c.capping?1:0) + (c.loaders?1:0);
+    sc = Math.min(40, sc);
+    const tog = Math.min(15, ({0:0,1:3,2:7,3:10}[s.toggle]||0) + ({0:0,1:2,2:5}[s.defence]||0));
+    const end = Math.min(15, ({yes:8,pushed:3}[s.park]||0) + ({1:0,2:2,3:4}[s.push]||0) + (s.driver? Math.round((Number(s.driver)-1)*0.75) :0));
+    const pen = (c.died?8:0)+(c.tipped?5:0)+(c.broke?4:0)+(c.fouls?4:0);
+    return {auto, sc, tog, end, pen, total: Math.max(0, auto+sc+tog+end-pen)};
+  }
+  function checks(){ const o={}; CHECKS.forEach(id=>o[id]=$('#'+id).checked); return o; }
+  function score(){
+    const r=compute(state, checks());
+    $('#total').textContent=r.total;
+    $('#parts').textContent=`Auto ${r.auto} · Score ${r.sc} · Toggle ${r.tog} · End ${r.end} · Penalty ${r.pen?'−'+r.pen:0}`;
+    return r;
+  }
+  paint(); score();
+
+  /* ---------- data (this device) ---------- */
+  const KEY='scout69153C.entries';
+  let entries=[], storageOK=true;
+  try{ entries=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ storageOK=false; entries=[]; }
+  function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(entries)); return true; }catch(e){ storageOK=false; return false; } }
+  const msg=(t,cls)=>{const m=$('#saveMsg'); m.textContent=t; m.className='msg '+(cls||'');};
+  const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+
+  function resetForm(){
+    Object.assign(state,{alliance:null,autoPins:0,autoResult:null,drivePins:0,speed:null,reach:null,intake:null,toggle:null,defence:null,park:null,push:null,driver:null,pick:null});
+    CHECKS.forEach(id=>$('#'+id).checked=false);
+    $('#team').value=''; $('#match').value=''; $('#notes').value='';
+    paint(); score();
+  }
+
+  $('#save').addEventListener('click', ()=>{
+    const team=$('#team').value.trim().toUpperCase(), event=$('#event').value.trim(), scout=$('#scout').value.trim();
+    if(!team){ msg('Add a team number first.','err'); $('#team').focus(); return; }
+    if(!event){ msg('Add the event name first.','err'); $('#event').focus(); return; }
+    try{localStorage.setItem('scoutName', scout)}catch(e){}
+    const c=checks(), r=compute(state,c);
+    const doc={id:uid(), team, event, match:$('#match').value.trim(), scout, notes:$('#notes').value.trim(), ...state, ...c, score:r.total, parts:{auto:r.auto,sc:r.sc,tog:r.tog,end:r.end,pen:r.pen}, at:new Date().toISOString(), mine:true};
+    entries.push(doc);
+    if(persist()) msg(`Saved ${team}${doc.match?' · '+doc.match:''} on this phone.`,'ok');
+    else msg('Saved for now, but this browser is blocking storage, so it will be lost when you close the page. Copy your sheets to the team chat before closing.','err');
+    resetForm(); renderBoard();
+  });
+
+  /* ---------- share ---------- */
+  const smsg=(t,cls)=>{const m=$('#shareMsg'); m.textContent=t; m.className='msg '+(cls||'');};
+  function encode(list){ const clean=list.map(({mine,...rest})=>rest); return 'SCOUT1:'+btoa(unescape(encodeURIComponent(JSON.stringify(clean)))); }
+  $('#copyMine').addEventListener('click', async ()=>{
+    const mine=entries.filter(e=>e.mine);
+    if(!mine.length){ smsg('You have not saved any sheets on this phone yet.','err'); return; }
+    const code=encode(mine);
+    const box=$('#myCode'); box.value=code; box.hidden=false;
+    const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),1500));
+    try{ await Promise.race([navigator.clipboard.writeText(code), timeout]); smsg(`Copied ${mine.length} sheet${mine.length>1?'s':''}. Paste it into the team chat.`,'ok'); }
+    catch(e){ box.focus(); box.select(); smsg('Your code is in the box above. Select it all, copy it and paste it into the team chat.','err'); }
+  });
+  $('#importBtn').addEventListener('click', ()=>{
+    const raw=$('#code').value.trim();
+    const blocks=raw.match(/SCOUT1:[A-Za-z0-9+/=]+/g);
+    if(!blocks){ smsg('That does not look like a scouting code. It should start with SCOUT1:','err'); return; }
+    let added=0, skipped=0;
+    try{
+      blocks.forEach(bk=>{
+        const list=JSON.parse(decodeURIComponent(escape(atob(bk.slice(7)))));
+        list.forEach(e=>{ if(!e||!e.id||!e.team) return; if(entries.some(x=>x.id===e.id)){skipped++;return;} entries.push({...e, mine:false}); added++; });
+      });
+    }catch(e){ smsg('That code is damaged or incomplete. Ask your teammate to copy it again.','err'); return; }
+    persist(); $('#code').value=''; renderBoard();
+    smsg(`Added ${added} sheet${added===1?'':'s'}${skipped?`, skipped ${skipped} already on the board`:''}.`,'ok');
+  });
+  $('#csv').addEventListener('click', ()=>{
+    if(!entries.length){ smsg('No sheets to download yet.','err'); return; }
+    const cols=['event','match','team','alliance','scout','score','autoPins','autoResult','drivePins','speed','reach','intake','toggle','defence','park','push','driver','pick','died','tipped','broke','fouls','notes','at'];
+    const q=v=>{v=v==null?'':String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+    const csv=[cols.join(',')].concat(entries.map(e=>cols.map(c=>q(e[c])).join(','))).join('\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='scouting.csv'; document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  /* ---------- board ---------- */
+  const tierOf = s => s>=70?'Competitor':s>=50?'Good':s>=30?'Mid':s>=15?'Bad':'Poop';
+  const avg = a => a.length? a.reduce((x,y)=>x+y,0)/a.length : 0;
+  let openTeam=null, pendingDelete=null;
+  $('#fEvent').addEventListener('change', renderBoard);
+  $('#fTeam').addEventListener('input', renderBoard);
+
+  function renderBoard(){
+    const nm=entries.filter(e=>e.mine).length; $('#countNote').textContent=`${nm} mine · ${entries.length-nm} from teammates`;
+    const ev=$('#fEvent').value, q=$('#fTeam').value.trim().toUpperCase();
+    const events=[...new Set(entries.map(e=>e.event))].sort();
+    const sel=$('#fEvent'), cur=sel.value;
+    sel.replaceChildren(new Option('All events',''), ...events.map(e=>new Option(e,e))); sel.value=events.includes(cur)?cur:'';
+    const list=entries.filter(e=>(!sel.value||e.event===sel.value)&&(!q||e.team.includes(q)));
+    const board=$('#board');
+    if(!entries.length){
+      board.innerHTML='<div class="empty"><strong>No sheets yet.</strong><br>Scout a match on the first tab and tap Save sheet, or paste a teammate&#39;s code above. Every team you scout shows up here, ranked by average score.</div>';
+      $('#detail').replaceChildren(); return;
+    }
+    const by={}; list.forEach(e=>(by[e.team]=by[e.team]||[]).push(e));
+    const rows=Object.entries(by).map(([t,es])=>({t, n:es.length, s:avg(es.map(e=>e.score)), auto:avg(es.map(e=>e.autoPins||0)), pins:avg(es.map(e=>e.drivePins||0)),
+      park:es.filter(e=>e.park==='yes').length/es.length, fails:es.filter(e=>e.died||e.tipped||e.broke).length,
+      pick:(()=>{const c={first:0,maybe:0,avoid:0}; es.forEach(e=>e.pick&&c[e.pick]++); const best=Object.entries(c).sort((a,b)=>b[1]-a[1])[0]; return best[1]?best[0]:null})() }))
+      .sort((a,b)=>b.s-a.s);
+    if(!rows.length){ board.innerHTML='<div class="empty">No sheets match this filter.</div>'; return; }
+    const pickPill=p=>p==='first'?'<span class="pill p1">First pick</span>':p==='maybe'?'<span class="pill p2">Maybe</span>':p==='avoid'?'<span class="pill pa">Avoid</span>':'';
+    board.innerHTML=`<div class="tablewrap"><table><thead><tr><th>Team</th><th>Score</th><th>Tier</th><th>Sheets</th><th>Auto pins</th><th>Driver pins</th><th>Parked</th><th>Breakdowns</th><th>Verdict</th></tr></thead><tbody>${
+      rows.map(r=>`<tr class="team" tabindex="0" data-t="${esc(r.t)}"><td><strong>${esc(r.t)}</strong></td><td class="n">${r.s.toFixed(0)}</td><td class="tier">${tierOf(r.s)}</td><td class="n">${r.n}</td><td class="n">${r.auto.toFixed(1)}</td><td class="n">${r.pins.toFixed(1)}</td><td class="n">${Math.round(r.park*100)}%</td><td class="n">${r.fails}</td><td>${pickPill(r.pick)}</td></tr>`).join('')
+    }</tbody></table></div>`;
+    board.querySelectorAll('tr.team').forEach(tr=>{
+      const open=()=>{openTeam=tr.dataset.t; renderDetail();};
+      tr.addEventListener('click',open); tr.addEventListener('keydown',e=>{if(e.key==='Enter')open();});
+    });
+    renderDetail();
+  }
+
+  function renderDetail(){
+    const d=$('#detail');
+    if(!openTeam){ d.replaceChildren(); return; }
+    const es=entries.filter(e=>e.team===openTeam).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
+    if(!es.length){ d.replaceChildren(); openTeam=null; return; }
+    const lab={claw:'claw',roller:'roller intake',other:'other intake'}, reach={alliance:'alliance goal',short:'short goal',tall:'tall goal',top:'top of tall stack'};
+    d.innerHTML=`<div class="card" style="margin-top:12px"><h2>${esc(openTeam)} <small>${es.length} sheet${es.length>1?'s':''}</small></h2>${
+      es.map(e=>`<div class="entry"><div class="top"><strong>${esc(e.event)}${e.match?' · '+esc(e.match):''}${e.alliance?' · '+e.alliance:''}</strong><span class="parts">${e.score}/100 · A${e.parts?.auto??0} S${e.parts?.sc??0} T${e.parts?.tog??0} E${e.parts?.end??0}${e.parts?.pen?' −'+e.parts.pen:''}</span></div>
+        <div class="msg">${[e.autoPins+' auto pins', e.drivePins+' driver pins', e.intake?lab[e.intake]:'', e.reach?'reaches '+reach[e.reach]:'', e.park==='yes'?'parked':'', e.died?'died':'', e.tipped?'tipped':'', e.broke?'broke':''].filter(Boolean).join(' · ')}</div>
+        ${e.notes?`<div>${esc(e.notes)}</div>`:''}
+        <div class="top"><span class="msg">${e.scout?esc(e.scout):'Unknown scout'}</span>${
+          pendingDelete===e.id?`<span><button class="ghost danger" data-del="${e.id}">Delete this sheet</button> <button class="ghost" data-cancel="1">Keep</button></span>`:`<button class="ghost" data-ask="${e.id}">Delete</button>`}</div></div>`).join('')
+    }</div>`;
+    d.querySelectorAll('[data-ask]').forEach(b=>b.onclick=()=>{pendingDelete=b.dataset.ask; renderDetail();});
+    d.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=()=>{pendingDelete=null; renderDetail();});
+    d.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      entries=entries.filter(x=>x.id!==b.dataset.del); pendingDelete=null; persist(); renderBoard();
+    });
+  }
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  renderBoard();
+
+})();
+</script>
+</body></html>
